@@ -14,17 +14,23 @@ const getConnectionString = (hostname) => {
 	return value ? value : null;
 }
 
-const pgClient = new Client({connectionString: connectionString});
+const getPgClient = (hostname) => {
+	const connectionString = getConnectionString(hostname);
+	if (connectionString) {
+		return new Client({connectionString});
+	}
+	return null;
+}
+
+const pgClient = getPgClient(hostname);
 
 const connect = async (pgClient) => {
-	const connectionString = getConnectionString(hostname);
-	if (host) {
-		return await pgClient.connect(connectionString);
+	if (pgClient) {
+		return await pgClient.connect();
 	}
 	console.log('... connect failed.');
 	return null;
 }
-
 
 app.get('/', (req, res) => {
 	(async () => {
