@@ -1,0 +1,8 @@
+use:
+  - nodejs@14
+run:
+  - npm i
+deploy:
+  - package.json
+  - node_modules
+  - ./app/index.js
