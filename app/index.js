@@ -18,6 +18,7 @@ const getConnectionString = (hostname) => {
 
 const getPgClient = (hostname) => {
 	const connectionString = getConnectionString(hostname);
+	console.log('... connectionString:', connectionString);
 	if (connectionString) {
 		return new Client({connectionString});
 	}
