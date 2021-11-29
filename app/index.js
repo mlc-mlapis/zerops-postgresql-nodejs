@@ -30,15 +30,20 @@ const connect = async (pgClient) => {
 	if (pgClient) {
 		return await pgClient.connect();
 	}
-	console.log('... connect failed.');
+	console.log('... PostgreSQL SDK client not initialized.');
 	return null;
 }
 
-app.get('/', (req, res) => {
-	(async () => {
+(async () => {
+	try {
 		const connectResult = await connect(pgClient);
 		console.log('... connect successful:', connectResult);
-	})();
+	} catch (err) {
+		console.log('... connect failed:', err);
+	}
+})();
+
+app.get('/', (req, res) => {
 	res.send(`... PostgreSQL access from Node.js`);
 	console.log('... root access.');
 });
