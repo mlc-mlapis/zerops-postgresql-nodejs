@@ -5,6 +5,8 @@ const {Client} = require('pg');
 const app = express();
 const port = 3000;
 
+// Get the global environment object.
+const env = process.env;
 const hostname = 'postgresql';
 
 // Function returning an connectionString environment variable of the <hostname> service.
