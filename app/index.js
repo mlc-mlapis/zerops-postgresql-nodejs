@@ -8,6 +8,7 @@ const port = 3000;
 // Get the global environment object.
 const env = process.env;
 const hostname = 'postgresql';
+const database = 'postgres';
 
 // Function returning an connectionString environment variable of the <hostname> service.
 const getConnectionString = (hostname) => {
@@ -16,15 +17,15 @@ const getConnectionString = (hostname) => {
 	return value ? value : null;
 }
 
-const getPgClient = (hostname) => {
+const getPgClient = (hostname, database) => {
 	const connectionString = getConnectionString(hostname);
 	if (connectionString) {
-		return new Client(connectionString + '/');
+		return new Client(`${connectionString}/${database}`);
 	}
 	return null;
 }
 
-const pgClient = getPgClient(hostname);
+const pgClient = getPgClient(hostname, database);
 
 const connect = async (pgClient) => {
 	if (pgClient) {
