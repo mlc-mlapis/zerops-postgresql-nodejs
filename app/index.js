@@ -19,7 +19,7 @@ const getConnectionString = (hostname) => {
 const getPgClient = (hostname) => {
 	const connectionString = getConnectionString(hostname);
 	if (connectionString) {
-		return new Client(connectionString + '/postgres');
+		return new Client(connectionString + '/');
 	}
 	return null;
 }
