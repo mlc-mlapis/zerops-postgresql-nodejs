@@ -6,10 +6,14 @@ const app = express();
 const port = 3000;
 
 app.get('/', (req, res) => {
+	/*
 	(async () => {
 		
 
 	})();
+	*/
+	res.send(`... PostgreSQL access from Node.js`);
+	console.log('... root access.');
 });
 
 app.listen(port, () => {
