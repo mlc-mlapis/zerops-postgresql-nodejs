@@ -17,7 +17,8 @@ const getConnectionString = (hostname) => {
 }
 
 const getPgClient = (hostname) => {
-	const connectionString = getConnectionString(hostname);
+	// const connectionString = getConnectionString(hostname);
+	const connectionString = 'postgres://postgresql:7TpL7DHbUi95DQFZ@postgresql:5432/postgres';
 	console.log('... connectionString:', connectionString + '/postgres');
 	if (connectionString) {
 		return new Client(connectionString);
