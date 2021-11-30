@@ -53,7 +53,7 @@ const selectRecordById = async (pgClient, id) => {
 	return await pgClient.query(query);
 }
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
 	res.send(`... PostgreSQL database access from Node.js`);
 	console.log('... root access.');
 	const selectResult = await selectRecordById(pgClient, 1);
