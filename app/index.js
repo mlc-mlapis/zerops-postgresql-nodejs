@@ -64,7 +64,7 @@ app.get('/', async (req, res) => {
 			console.log('... no rows found');
 		}
 	} catch (err) {
-		console.error('... request to PostgreSQL database failed:', err);
+		console.error('... request to PostgreSQL database failed:', err.code, err.message);
 	}
 });
 
@@ -83,6 +83,6 @@ function handleShutdownGracefully() {
 	});
 }
 
-// process.on('SIGINT', handleShutdownGracefully);
-// process.on('SIGTERM', handleShutdownGracefully);
-// process.on('SIGHUP', handleShutdownGracefully);
+process.on('SIGINT', handleShutdownGracefully);
+process.on('SIGTERM', handleShutdownGracefully);
+process.on('SIGHUP', handleShutdownGracefully);
