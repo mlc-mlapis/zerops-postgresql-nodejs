@@ -79,6 +79,6 @@ function handleShutdownGracefully() {
 	});
 }
 
-process.on('SIGINT', handleShutdownGracefully);
-process.on('SIGTERM', handleShutdownGracefully);
-process.on('SIGHUP', handleShutdownGracefully);
+// process.on('SIGINT', handleShutdownGracefully);
+// process.on('SIGTERM', handleShutdownGracefully);
+// process.on('SIGHUP', handleShutdownGracefully);
