@@ -50,13 +50,13 @@ app.get('/', (req, res) => {
 	process.kill(process.pid, 'SIGTERM');
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
 	console.log(`... listening on port ${port}, the application started.`);
 });
 
 function handleShutdownGracefully() {
 	console.info('... closing server gracefully.');
-	app.close(() => {
+	server.close(() => {
 		console.log("... server closed.");
 		if (pgClient) {
 			pgClient.end();
