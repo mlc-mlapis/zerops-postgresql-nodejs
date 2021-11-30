@@ -31,16 +31,16 @@ const connect = async (pgClient) => {
 	if (pgClient) {
 		return await pgClient.connect();
 	}
-	console.log('... PostgreSQL SDK client not initialized.');
+	console.error('... PostgreSQL SDK client not initialized.');
 	return null;
 }
 
 (async () => {
 	try {
 		const connectResult = await connect(pgClient);
-		console.log('... connect successful:', connectResult);
+		console.info('... connect successful:', connectResult);
 	} catch (err) {
-		console.log('... connect failed:', err);
+		console.error('... connect failed:', err);
 	}
 })();
 
@@ -52,3 +52,19 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
 	console.log(`... listening on port ${port}, the application started.`);
 });
+
+function handleShutdownGracefully() {
+	console.info('... closing server gracefully.');
+	app.close(() => {
+		console.log("... server closed.");
+		if (pgClient) {
+			pgClient.end();
+			console.info('... pgClient:', pgClient);
+		}
+		process.exit(0);
+	});
+}
+
+process.on('SIGINT', handleShutdownGracefully);
+process.on('SIGTERM', handleShutdownGracefully);
+process.on('SIGHUP', handleShutdownGracefully);
