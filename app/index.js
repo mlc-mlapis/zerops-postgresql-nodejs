@@ -47,7 +47,7 @@ const connect = async (pgClient) => {
 const selectRecordById = async (pgClient, id) => {
 	const query = {
 		name: 'select-record-by-id',
-		text: 'SELECT * FROM records WHERE id = $1',
+		text: 'SELECT * FROM record WHERE id = $1',
 		values: [id]
 	};
 	return await pgClient.query(query);
