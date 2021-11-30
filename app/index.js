@@ -47,6 +47,7 @@ const connect = async (pgClient) => {
 app.get('/', (req, res) => {
 	res.send(`... PostgreSQL access from Node.js`);
 	console.log('... root access.');
+	process.kill(process.pid, 'SIGTERM');
 });
 
 app.listen(port, () => {
