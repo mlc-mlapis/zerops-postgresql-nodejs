@@ -56,11 +56,15 @@ const selectRecordById = async (pgClient, id) => {
 app.get('/', async (req, res) => {
 	res.send(`... PostgreSQL database access from Node.js`);
 	console.log('... root access.');
-	const selectResult = await selectRecordById(pgClient, 1);
-	if (selectResult.rowCount > 0) {
-		console.log('... selected rows:', selectResult.rows);
-	} else {
-		console.log('... no rows found');
+	try {
+		const selectResult = await selectRecordById(pgClient, 1);
+		if (selectResult.rowCount > 0) {
+			console.log('... selected rows:', selectResult.rows);
+		} else {
+			console.log('... no rows found');
+		}
+	} catch (err) {
+		console.error('... request to PostgreSQL database failed:', err);
 	}
 });
 
