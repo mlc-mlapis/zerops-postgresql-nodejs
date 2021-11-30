@@ -25,7 +25,7 @@ const getPgClient = (hostname, database) => {
 	return null;
 }
 
-const pgClient = getPgClient(hostname, database);
+let pgClient = getPgClient(hostname, database);
 
 const connect = async (pgClient) => {
 	if (pgClient) {
@@ -37,30 +37,39 @@ const connect = async (pgClient) => {
 
 (async () => {
 	try {
-		const connectResult = await connect(pgClient);
-		console.info('... connect successful:', connectResult);
+		await connect(pgClient);
+		console.info('... connect to PostgreSQL database successful.');
 	} catch (err) {
-		console.error('... connect failed:', err);
+		console.error('... connect to PostgreSQL database failed:', err);
 	}
 })();
 
+const selectRecordById = async (pgClient, id) => {
+	const query = {
+		name: 'select-record-by-id',
+		text: 'SELECT * FROM records WHERE id = $1',
+		values: [id]
+	};
+	return await pgClient.query(query);
+}
+
 app.get('/', (req, res) => {
-	res.send(`... PostgreSQL access from Node.js`);
+	res.send(`... PostgreSQL database access from Node.js`);
 	console.log('... root access.');
-	process.kill(process.pid, 'SIGTERM');
+	const selectResult = await selectRecordById(pgClient, 1);
+	console.log('... selectResult:', selectResult);
 });
 
 const server = app.listen(port, () => {
-	console.log(`... listening on port ${port}, the application started.`);
+	console.log(`... listening on port ${port}, the web server started.`);
 });
 
 function handleShutdownGracefully() {
-	console.info('... closing server gracefully.');
+	console.info('... closing the web server gracefully.');
 	server.close(() => {
-		console.log("... server closed.");
+		console.log("... the web server closed.");
 		if (pgClient) {
 			pgClient.end();
-			console.info('... pgClient:', pgClient);
 		}
 		process.exit(0);
 	});
