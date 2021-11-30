@@ -57,7 +57,11 @@ app.get('/', async (req, res) => {
 	res.send(`... PostgreSQL database access from Node.js`);
 	console.log('... root access.');
 	const selectResult = await selectRecordById(pgClient, 1);
-	console.log('... selectResult:', selectResult);
+	if (selectResult.rowCount > 0) {
+		console.log('... selected rows:', selectResult.rows);
+	} else {
+		console.log('... no rows found');
+	}
 });
 
 const server = app.listen(port, () => {
