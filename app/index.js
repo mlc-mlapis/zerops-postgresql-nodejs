@@ -45,12 +45,15 @@ const connect = async (pgClient) => {
 })();
 
 const selectRecordById = async (pgClient, id) => {
-	const query = {
-		name: 'select-record-by-id',
-		text: 'SELECT * FROM records WHERE id = $1',
-		values: [id]
-	};
-	return await pgClient.query(query);
+	if (pgClient) {
+		const query = {
+			name: 'select-record-by-id',
+			text: 'SELECT * FROM records WHERE id = $1',
+			values: [id]
+		};
+		return await pgClient.query(query);
+	}
+	return null;
 }
 
 app.get('/', async (req, res) => {
@@ -58,10 +61,14 @@ app.get('/', async (req, res) => {
 	console.log('... root access.');
 	try {
 		const selectResult = await selectRecordById(pgClient, 1);
-		if (selectResult.rowCount > 0) {
+		if (selectResult && selectResult.rowCount > 0) {
 			console.log('... selected rows:', selectResult.rows);
 		} else {
-			console.log('... no rows found');
+			if (selectResult) {
+				console.log('... no rows found');
+			} else {
+				console.log('... PostgreSQL SDK client not initialized.');
+			}
 		}
 	} catch (err) {
 		console.error(`... request to PostgreSQL database failed: ${err.code} - ${err.message}`);
