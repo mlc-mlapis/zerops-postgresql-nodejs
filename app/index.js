@@ -56,6 +56,18 @@ const selectRecordById = async (pgClient, id) => {
 	return null;
 }
 
+const insertRecord = async (pgClient, name, value) => {
+	if (pgClient) {
+		const query = {
+			name: 'insert-record',
+			text: 'INSERT INTO records(name, value) VALUES($1, $2)',
+			values: [name, value]
+		};
+		return await pgClient.query(query);
+	}
+	return null;
+}
+
 app.get('/', async (req, res) => {
 	res.send(`... PostgreSQL database access from Node.js`);
 	console.log('... PostgreSQL connection setting:', {
@@ -65,6 +77,22 @@ app.get('/', async (req, res) => {
 		requestTimeout
 	});
 	try {
+		console.log('... insertRecord');
+		const insertResult = await insertRecord(pgClient, 'Patric Cain', 155);
+		if (insertResult) {
+			console.log('... insertResult:', insertResult);
+		} else {
+			if (insertResult) {
+				console.log('... insertResult');
+			} else {
+				console.log('... PostgreSQL SDK client not initialized.');
+			}
+		}
+	} catch (err) {
+		console.error(`... request to PostgreSQL database failed: ${err.code} - ${err.message}`);
+	}
+	try {
+		console.log('... selectRecordById');
 		const selectResult = await selectRecordById(pgClient, 1);
 		if (selectResult && selectResult.rowCount > 0) {
 			console.log('... selected rows:', selectResult.rows);
