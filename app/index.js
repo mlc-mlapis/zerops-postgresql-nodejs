@@ -58,7 +58,12 @@ const selectRecordById = async (pgClient, id) => {
 
 app.get('/', async (req, res) => {
 	res.send(`... PostgreSQL database access from Node.js`);
-	console.log('... root access:', server);
+	console.log('... PostgreSQL connection setting:', {
+		timeout,
+		keepAliveTimeout,
+		headersTimeout,
+		requestTimeout
+	});
 	try {
 		const selectResult = await selectRecordById(pgClient, 1);
 		if (selectResult && selectResult.rowCount > 0) {
@@ -78,6 +83,8 @@ app.get('/', async (req, res) => {
 const server = app.listen(port, () => {
 	console.log(`... listening on port ${port}, the web server started.`);
 });
+
+const {timeout, keepAliveTimeout, headersTimeout, requestTimeout} = server;
 
 function handleShutdownGracefully() {
 	console.info('... closing the web server gracefully.');
