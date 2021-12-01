@@ -46,6 +46,7 @@ const getPgClient = (oldPgClient, hostname, database) => {
 			console.error('<3>... PostgreSQL connection lost!');
 			if (oldPgClient) {
 				oldPgClient.end();
+				setTimeout(() => {console.log('... old client ...')}, 10000);
 			}
 			setTimeout(() => {
 				// Setting a new PostgreSQL client on the global variable <pgClient>.
