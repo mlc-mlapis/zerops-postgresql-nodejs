@@ -60,7 +60,7 @@ const insertRecord = async (pgClient, name, value) => {
 	if (pgClient) {
 		const query = {
 			name: 'insert-record',
-			text: 'INSERT INTO records(name, value) VALUES($1, $2)',
+			text: 'INSERT INTO records(name, value) VALUES($1, $2) RETURNING id',
 			values: [name, value]
 		};
 		return await pgClient.query(query);
