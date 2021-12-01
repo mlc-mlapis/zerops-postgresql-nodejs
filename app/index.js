@@ -25,8 +25,8 @@ const connect = async (client) => {
 	return null;
 }
 
-const handleNewConnection = (oldPgClient, hostname, database) => {
-	const newPgClient = getPgClient(oldPgClient, hostname, database);
+const handleNewConnection = (hostname, database) => {
+	const newPgClient = getPgClient(hostname, database);
 	(async () => {
 		try {
 			await connect(newPgClient);
@@ -38,19 +38,21 @@ const handleNewConnection = (oldPgClient, hostname, database) => {
 	return newPgClient;
 }
 
-const getPgClient = (oldPgClient, hostname, database) => {
+const getPgClient = (hostname, database) => {
 	const connectionString = getConnectionString(hostname);
 	if (connectionString) {
 		const newPgClient = new Client(`${connectionString}/${database}`);
 		newPgClient.once('error', () => {
-			console.error('<3>... PostgreSQL connection lost!');
-			if (oldPgClient) {
-				oldPgClient.end();
-				setTimeout(() => {console.log('... old client ...')}, 10000);
+			console.error('<3>... PostgreSQL connection terminated unexpectedly!');
+			if (pgClient) {
+				// Releasing the old PostgreSQL client <pgClient> via the global variable reference.
+				pgClient.end();
 			}
 			setTimeout(() => {
 				// Setting a new PostgreSQL client on the global variable <pgClient>.
-				pgClient = handleNewConnection(oldPgClient, hostname, database);
+				// A delay before attempting to reconnect has a goal to avoid a hot loop,
+				// and to allow to process asynchronous requests in the meantime.
+				pgClient = handleNewConnection(hostname, database);
 			}, 1000);
 		});
 		return newPgClient;
@@ -59,7 +61,7 @@ const getPgClient = (oldPgClient, hostname, database) => {
 }
 
 // Global variable of the PostgreSQL client.
-let pgClient = handleNewConnection(null, hostname, database);
+let pgClient = handleNewConnection(hostname, database);
 
 const selectRecordById = async (pgClient, id) => {
 	if (pgClient) {
