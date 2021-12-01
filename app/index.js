@@ -79,11 +79,11 @@ app.get('/', async (req, res) => {
 	try {
 		console.log('... insertRecord');
 		const insertResult = await insertRecord(pgClient, 'Patric Cain', 155);
-		if (insertResult) {
-			console.log('... insertResult:', insertResult);
+		if (insertResult && insertResult.rowCount > 0) {
+			console.log('... inserted rows:', insertResult.rows);
 		} else {
 			if (insertResult) {
-				console.log('... insertResult');
+				console.log('... no rows inserted');
 			} else {
 				console.log('... PostgreSQL SDK client not initialized.');
 			}
