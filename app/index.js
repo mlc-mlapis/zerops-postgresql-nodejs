@@ -17,50 +17,48 @@ const getConnectionString = (hostname) => {
 	return value ? value : null;
 }
 
-const connect = async (pgClient) => {
-	if (pgClient) {
-		return await pgClient.connect();
+const connect = async (client) => {
+	if (client) {
+		return await client.connect();
 	}
 	console.error('<3>... PostgreSQL SDK client not initialized.');
 	return null;
 }
 
-const getPgClient = (hostname, database) => {
+const handleNewConnection = (oldPgClient, hostname, database) => {
+	const newPgClient = getPgClient(oldPgClient, hostname, database);
+	(async () => {
+		try {
+			await connect(newPgClient);
+			console.info('... a new connect to PostgreSQL database successful.');
+		} catch (err) {
+			console.error(`<3>... a new connect to PostgreSQL database failed: ${err.code} - ${err.message}`);
+		}
+	})();
+	return newPgClient;
+}
+
+const getPgClient = (oldPgClient, hostname, database) => {
 	const connectionString = getConnectionString(hostname);
 	if (connectionString) {
-		const client = new Client(`${connectionString}/${database}`);
-		client.once('error', (err) => {
+		const newPgClient = new Client(`${connectionString}/${database}`);
+		newPgClient.once('error', () => {
 			console.error('<3>... PostgreSQL connection lost!');
-			if (pgClient) {
-				pgClient.end();
+			if (oldPgClient) {
+				oldPgClient.end();
 			}
-			pgClient = getPgClient(hostname, database);
-			(async () => {
-				try {
-					await connect(pgClient);
-					reconnects += 1;
-					console.info('... a new connect to PostgreSQL database successful:', reconnects);
-				} catch (err) {
-					console.error(`<3>... a new connect to PostgreSQL database failed: ${err.code} - ${err.message}`);
-				}
-			})();
+			setTimeout(() => {
+				// Setting a new PostgreSQL client on the global variable <pgClient>.
+				pgClient = handleNewConnection(oldPgClient, hostname, database);
+			}, 1000);
 		});
-		return client;
+		return newPgClient;
 	}
 	return null;
 }
 
-let reconnects = 0;
-let pgClient = getPgClient(hostname, database);
-
-(async () => {
-	try {
-		await connect(pgClient);
-		console.info('... connect to PostgreSQL database successful.');
-	} catch (err) {
-		console.error(`<3>... connect to PostgreSQL database failed: ${err.code} - ${err.message}`);
-	}
-})();
+// Global variable of the PostgreSQL client.
+let pgClient = handleNewConnection(null, hostname, database);
 
 const selectRecordById = async (pgClient, id) => {
 	if (pgClient) {
