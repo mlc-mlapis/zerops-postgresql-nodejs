@@ -40,14 +40,14 @@ const connect = async (pgClient) => {
 		await connect(pgClient);
 		console.info('... connect to PostgreSQL database successful.');
 	} catch (err) {
-		console.error('... connect to PostgreSQL database failed:', err);
+		console.error(`... connect to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
 })();
 
 const selectRecordById = async (pgClient, id) => {
 	const query = {
 		name: 'select-record-by-id',
-		text: 'SELECT * FROM record WHERE id = $1',
+		text: 'SELECT * FROM records WHERE id = $1',
 		values: [id]
 	};
 	return await pgClient.query(query);
@@ -64,7 +64,7 @@ app.get('/', async (req, res) => {
 			console.log('... no rows found');
 		}
 	} catch (err) {
-		console.error('... request to PostgreSQL database failed:', err.code, err.message);
+		console.error(`... request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
 });
 
