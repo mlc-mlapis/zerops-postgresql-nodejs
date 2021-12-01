@@ -17,33 +17,49 @@ const getConnectionString = (hostname) => {
 	return value ? value : null;
 }
 
+const connect = async (pgClient) => {
+	if (pgClient) {
+		return await pgClient.connect();
+	}
+	console.error('<3>... PostgreSQL SDK client not initialized.');
+	return null;
+}
+
 const getPgClient = (hostname, database) => {
 	const connectionString = getConnectionString(hostname);
 	if (connectionString) {
-		return new Client(`${connectionString}/${database}`);
+		const client = new Client(`${connectionString}/${database}`);
+		client.on('error', (err) => {
+			console.error('<3>... PostgreSQL connection lost! A new one has been established.');
+			if (pgClient) {
+				pgClient.off('error', (err) => {
+					console.info('... an error hook on the PostgreSQL client removed.');
+				});
+				pgClient.end();
+			}
+			pgClient = getPgClient(hostname, database);
+			(async () => {
+				try {
+					await connect(pgClient);
+					console.info('... a new connect to PostgreSQL database successful.');
+				} catch (err) {
+					console.error(`<3>... a new connect to PostgreSQL database failed: ${err.code} - ${err.message}`);
+				}
+			})();
+		});
+		return client;
 	}
 	return null;
 }
 
 let pgClient = getPgClient(hostname, database);
-pgClient.on('error', (err) => {
-	console.log('... PostgreSQL connection lost:', err);
-});
-
-const connect = async (pgClient) => {
-	if (pgClient) {
-		return await pgClient.connect();
-	}
-	console.error('... PostgreSQL SDK client not initialized.');
-	return null;
-}
 
 (async () => {
 	try {
 		await connect(pgClient);
 		console.info('... connect to PostgreSQL database successful.');
 	} catch (err) {
-		console.error(`... connect to PostgreSQL database failed: ${err.code} - ${err.message}`);
+		console.error(`<3>... connect to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
 })();
 
@@ -88,11 +104,11 @@ app.get('/', async (req, res) => {
 			if (insertResult) {
 				console.log('... no rows inserted');
 			} else {
-				console.log('... PostgreSQL SDK client not initialized.');
+				console.error('<3>... PostgreSQL SDK client not initialized.');
 			}
 		}
 	} catch (err) {
-		console.error(`... request to PostgreSQL database failed: ${err.code} - ${err.message}`);
+		console.error(`<3>... request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
 	try {
 		console.log('... selectRecordById');
@@ -103,11 +119,11 @@ app.get('/', async (req, res) => {
 			if (selectResult) {
 				console.log('... no rows found');
 			} else {
-				console.log('... PostgreSQL SDK client not initialized.');
+				console.error('<3>... PostgreSQL SDK client not initialized.');
 			}
 		}
 	} catch (err) {
-		console.error(`... request to PostgreSQL database failed: ${err.code} - ${err.message}`);
+		console.error(`<3>... request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
 });
 
