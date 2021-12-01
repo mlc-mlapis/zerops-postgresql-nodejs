@@ -26,6 +26,9 @@ const getPgClient = (hostname, database) => {
 }
 
 let pgClient = getPgClient(hostname, database);
+pgClient.on('error', (err) => {
+	console.log('... PostgreSQL connection lost:', err);
+});
 
 const connect = async (pgClient) => {
 	if (pgClient) {
