@@ -29,19 +29,17 @@ const getPgClient = (hostname, database) => {
 	const connectionString = getConnectionString(hostname);
 	if (connectionString) {
 		const client = new Client(`${connectionString}/${database}`);
-		client.on('error', (err) => {
-			console.error('<3>... PostgreSQL connection lost! A new one has been established.');
+		client.once('error', (err) => {
+			console.error('<3>... PostgreSQL connection lost!');
 			if (pgClient) {
-				pgClient.off('error', (err) => {
-					console.info('... an error hook on the PostgreSQL client removed.');
-				});
 				pgClient.end();
 			}
 			pgClient = getPgClient(hostname, database);
 			(async () => {
 				try {
 					await connect(pgClient);
-					console.info('... a new connect to PostgreSQL database successful.');
+					reconnects += 1;
+					console.info('... a new connect to PostgreSQL database successful:', reconnects);
 				} catch (err) {
 					console.error(`<3>... a new connect to PostgreSQL database failed: ${err.code} - ${err.message}`);
 				}
@@ -52,6 +50,7 @@ const getPgClient = (hostname, database) => {
 	return null;
 }
 
+let reconnects = 0;
 let pgClient = getPgClient(hostname, database);
 
 (async () => {
