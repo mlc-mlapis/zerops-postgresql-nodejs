@@ -78,7 +78,7 @@ const selectRecordById = async (pgClient, id) => {
 	if (pgClient) {
 		const query = {
 			name: 'select-record-by-id',
-			text: 'SELECT * FROM record WHERE id = $1',
+			text: 'SELECT * FROM records WHERE id = $1',
 			values: [id]
 		};
 		return await pgClient.query(query);
@@ -119,7 +119,7 @@ app.get('/', async (req, res) => {
 	}
 	try {
 		console.log('... insertRecord');
-		const insertResult = await insertRecord(pgClient, 'Patrik Cain', 155);
+		const insertResult = await insertRecord(pgClient, `Patrik Cain (${Date.now()})`, 155);
 		if (insertResult && insertResult.rowCount > 0) {
 			console.log('... inserted rows:', insertResult.rows);
 		} else {
