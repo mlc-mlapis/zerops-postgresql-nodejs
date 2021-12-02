@@ -67,7 +67,7 @@ const getVersion = async (pgClient) => {
 	if (pgClient) {
 		const query = {
 			name: 'select-version',
-			text: 'version()'
+			text: 'SELECT version()'
 		};
 		return await pgClient.query(query);
 	}
