@@ -63,6 +63,17 @@ const getPgClient = (hostname, database) => {
 // Global variable of the PostgreSQL client.
 let pgClient = handleNewConnection(hostname, database);
 
+const getVersion = async (pgClient) => {
+	if (pgClient) {
+		const query = {
+			name: 'select-version',
+			text: 'version()'
+		};
+		return await pgClient.query(query);
+	}
+	return null;
+}
+
 const selectRecordById = async (pgClient, id) => {
 	if (pgClient) {
 		const query = {
@@ -95,6 +106,17 @@ app.get('/', async (req, res) => {
 		headersTimeout,
 		requestTimeout
 	});
+	try {
+		console.log('... getVersion');
+		const selectResult = await getVersion(pgClient);
+		if (selectResult) {
+			console.log('... used version:', selectResult);
+		} else {
+			console.error('<3>... PostgreSQL SDK client not initialized.');
+		}
+	} catch (err) {
+		console.error(`<3>... request to PostgreSQL database failed: ${err.code} - ${err.message}`);
+	}
 	try {
 		console.log('... insertRecord');
 		const insertResult = await insertRecord(pgClient, 'Patrik Cain', 155);
