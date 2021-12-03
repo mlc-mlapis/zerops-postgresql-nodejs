@@ -41,7 +41,8 @@ const handleNewConnection = (hostname, database) => {
 const getPgClient = (hostname, database) => {
 	const connectionString = getConnectionString(hostname);
 	if (connectionString) {
-		const newPgClient = new Client(`${connectionString}/${database}`);
+		// const newPgClient = new Client(`${connectionString}/${database}`);
+		const newPgClient = new Client(connectionString);
 		newPgClient.once("error", () => {
 			console.error("<3>... a PostgreSQL connection terminated unexpectedly!");
 			if (pgClient) {
