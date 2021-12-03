@@ -238,7 +238,6 @@ const server = app.listen(port, () => {
 });
 
 const {timeout, keepAliveTimeout, headersTimeout, requestTimeout} = server;
-server.keepAliveTimeout = 30;
 
 function handleShutdownGracefully() {
 	console.info('... closing the web server gracefully.');
