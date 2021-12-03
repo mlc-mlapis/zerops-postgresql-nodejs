@@ -13,11 +13,11 @@ const database = "postgres";
 // Function returning an connectionString environment variable of the <hostname> service.
 const getConnectionString = (hostname, readOnly) => {
 	const connectionString = "connectionString";
+	let value = env[`${hostname}_${connectionString}`];
 	// A read only connection means access to standby replicas of the PostgreSQL cluster.
 	if (readOnly) {
-		connectionString.replace("5432", "5433");
+		value = value.replace("5432", "5433");
 	}
-	const value = env[`${hostname}_${connectionString}`];
 	return value ? value : null;
 };
 
@@ -43,7 +43,7 @@ const handleNewConnection = (hostname, database) => {
 };
 
 const getPgClient = (hostname, database) => {
-	const connectionString = getConnectionString(hostname);
+	const connectionString = getConnectionString(hostname, true);
 	if (connectionString) {
 		// const newPgClient = new Client(`${connectionString}/${database}`);
 		const newPgClient = new Client(connectionString);
@@ -83,7 +83,7 @@ const getMode = async (pgClient) => {
 	if (pgClient) {
 		const query = {
 			name: "select-mode",
-			text: "SELECT pg_is_in_recovery();",
+			text: "SELECT pg_is_in_recovery()",
 		};
 		return await pgClient.query(query);
 	}
