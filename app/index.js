@@ -79,6 +79,17 @@ const getVersion = async (pgClient) => {
 	return null;
 };
 
+const getMode = async (pgClient) => {
+	if (pgClient) {
+		const query = {
+			name: "select-mode",
+			text: "SELECT * FROM pg_is_in_recovery();",
+		};
+		return await pgClient.query(query);
+	}
+	return null;
+};
+
 const selectRecordById = async (pgClient, id) => {
 	if (pgClient) {
 		const query = {
@@ -112,10 +123,10 @@ app.get("/", async (req, res) => {
 		requestTimeout,
 	});
 	try {
-		console.log("... getVersion");
+		console.log("... getMode");
 		const selectResult = await getVersion(pgClient);
 		if (selectResult) {
-			console.log("... used version:", selectResult.rows);
+			console.log("... used mode:", selectResult.rows);
 		} else {
 			console.error("<3>... a PostgreSQL SDK client not initialized.");
 		}
