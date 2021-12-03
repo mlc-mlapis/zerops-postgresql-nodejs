@@ -83,7 +83,7 @@ const getMode = async (pgClient) => {
 	if (pgClient) {
 		const query = {
 			name: "select-mode",
-			text: "SELECT * FROM pg_is_in_recovery();",
+			text: "SELECT pg_is_in_recovery();",
 		};
 		return await pgClient.query(query);
 	}
@@ -124,7 +124,7 @@ app.get("/", async (req, res) => {
 	});
 	try {
 		console.log("... getMode");
-		const selectResult = await getVersion(pgClient);
+		const selectResult = await getMode(pgClient);
 		if (selectResult) {
 			console.log("... used mode:", selectResult.rows);
 		} else {
