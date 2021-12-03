@@ -115,7 +115,7 @@ app.get("/", async (req, res) => {
 		console.log("... getVersion");
 		const selectResult = await getVersion(pgClient);
 		if (selectResult) {
-			console.log("... used version:", selectResult);
+			console.log("... used version:", selectResult.rows);
 		} else {
 			console.error("<3>... a PostgreSQL SDK client not initialized.");
 		}
