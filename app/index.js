@@ -68,6 +68,35 @@ const getPgClient = (hostname, database) => {
 // Global variable of the PostgreSQL client.
 let pgClient = handleNewConnection(hostname, database);
 
+for (const [index, pgClient] of [
+	{index: 0, pgClient: handleNewConnection(hostname, database)},
+	{index: 1, pgClient: handleNewConnection(hostname, database)},
+	{index: 2, pgClient: handleNewConnection(hostname, database)},
+	{index: 3, pgClient: handleNewConnection(hostname, database)},
+	{index: 4, pgClient: handleNewConnection(hostname, database)},
+	{index: 5, pgClient: handleNewConnection(hostname, database)},
+	{index: 6, pgClient: handleNewConnection(hostname, database)},
+	{index: 7, pgClient: handleNewConnection(hostname, database)},
+	{index: 8, pgClient: handleNewConnection(hostname, database)},
+	{index: 9, pgClient: handleNewConnection(hostname, database)}
+]) {
+	try {
+		console.log("... selectRecordById for index:", index);
+		const selectResult = await selectRecordById(pgClient, index);
+		if (selectResult && selectResult.rowCount > 0) {
+			console.log("... selected rows:", selectResult.rows);
+		} else {
+			if (selectResult) {
+				console.log("... no rows found");
+			} else {
+				console.error("<3>... a PostgreSQL SDK client not initialized.");
+			}
+		}
+	} catch (err) {
+		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
+	}
+}
+
 const getVersion = async (pgClient) => {
 	if (pgClient) {
 		const query = {
