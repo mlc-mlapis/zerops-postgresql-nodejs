@@ -79,28 +79,7 @@ const pgClients = [
 	{index: 7, pgClient: handleNewConnection(hostname, database)},
 	{index: 8, pgClient: handleNewConnection(hostname, database)},
 	{index: 9, pgClient: handleNewConnection(hostname, database)}
-]
-
-for (let index = 0; index < pgClients.length; index++) {
-	const pgClientElement = pgClients[index];
-	(async () => {
-		try {
-			console.log("... selectRecordById for index:", pgClientElement.index);
-			const selectResult = await selectRecordById(pgClientElement.pgClient, pgClientElement.index);
-			if (selectResult && selectResult.rowCount > 0) {
-				console.log("... selected rows:", selectResult.rows);
-			} else {
-				if (selectResult) {
-					console.log("... no rows found");
-				} else {
-					console.error("<3>... a PostgreSQL SDK client not initialized.");
-				}
-			}
-		} catch (err) {
-			console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
-		}
-	})();
-}
+];
 
 const getVersion = async (pgClient) => {
 	if (pgClient) {
@@ -156,6 +135,7 @@ app.get("/", async (req, res) => {
 		headersTimeout,
 		requestTimeout,
 	});
+	/*
 	try {
 		console.log("... getMode");
 		const selectResult = await getMode(pgClient);
@@ -196,6 +176,25 @@ app.get("/", async (req, res) => {
 		}
 	} catch (err) {
 		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
+	}
+	*/
+	for (let index = 0; index < pgClients.length; index++) {
+		const pgClientElement = pgClients[index];
+		try {
+			console.log("... selectRecordById for index:", pgClientElement.index);
+			const selectResult = await selectRecordById(pgClientElement.pgClient, pgClientElement.index);
+			if (selectResult && selectResult.rowCount > 0) {
+				console.log("... selected rows:", selectResult.rows);
+			} else {
+				if (selectResult) {
+					console.log("... no rows found");
+				} else {
+					console.error("<3>... a PostgreSQL SDK client not initialized.");
+				}
+			}
+		} catch (err) {
+			console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
+		}
 	}
 });
 
