@@ -133,7 +133,6 @@ app.get("/", async (req, res) => {
 	} catch (err) {
 		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
-	/*
 	try {
 		console.log("... insertRecord");
 		const insertResult = await insertRecord(pgClient, `Patrik Cain (${Date.now()})`, 155);
@@ -149,7 +148,6 @@ app.get("/", async (req, res) => {
 	} catch (err) {
 		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
-	*/
 	try {
 		console.log("... selectRecordById");
 		const selectResult = await selectRecordById(pgClient, 1);
