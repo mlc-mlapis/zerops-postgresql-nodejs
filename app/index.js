@@ -1,22 +1,22 @@
-const fs = require("fs");
-const path = require("path");
-const express = require("express");
-const {Client} = require("pg");
+const fs = require('fs');
+const path = require('path');
+const express = require('express');
+const {Client, Pool} = require('pg');
 const app = express();
 const port = 3000;
 
 // Get the global environment object.
 const env = process.env;
-const hostname = "postgresql";
-const database = "postgres";
+const hostname = 'postgresql';
+const database = 'postgres';
 
 // Function returning an connectionString environment variable of the <hostname> service.
 const getConnectionString = (hostname, readOnly) => {
-	const connectionString = "connectionString";
+	const connectionString = 'connectionString';
 	let value = env[`${hostname}_${connectionString}`];
 	// A read only connection means access to standby replicas of the PostgreSQL cluster.
 	if (readOnly) {
-		value = value.replace("5432", "5433");
+		value = value.replace('5432', '5433');
 	}
 	return value ? value : null;
 };
@@ -25,7 +25,7 @@ const connect = async (client) => {
 	if (client) {
 		return await client.connect();
 	}
-	console.error("<3>... a PostgreSQL SDK client not initialized.");
+	console.error('<3>... a PostgreSQL SDK client not initialized.');
 	return null;
 };
 
@@ -34,7 +34,7 @@ const handleNewConnection = (hostname, database) => {
 	(async () => {
 		try {
 			await connect(newPgClient);
-			console.info("... a new connect to the PostgreSQL database successful.");
+			console.info('... a new connect to the PostgreSQL database successful.');
 		} catch (err) {
 			console.error(`<3>... a new connect to the PostgreSQL database failed: ${err.code} - ${err.message}`);
 		}
@@ -47,8 +47,8 @@ const getPgClient = (hostname, database) => {
 	if (connectionString) {
 		// const newPgClient = new Client(`${connectionString}/${database}`);
 		const newPgClient = new Client(connectionString);
-		newPgClient.once("error", () => {
-			console.error("<3>... a PostgreSQL connection terminated unexpectedly!");
+		newPgClient.once('error', () => {
+			console.error('<3>... a PostgreSQL connection terminated unexpectedly!');
 			if (pgClient) {
 				// Releasing the old PostgreSQL client <pgClient> via the global variable reference.
 				pgClient.end();
@@ -68,6 +68,27 @@ const getPgClient = (hostname, database) => {
 // Global variable of the PostgreSQL client.
 let pgClient = handleNewConnection(hostname, database);
 
+const getPgPool = (hostname, database) => {
+	const connectionString = getConnectionString(hostname, true);
+	if (connectionString) {
+		const newPgPool = new Pool({
+			max: 10,
+			min: 0,
+			connectionString: connectionString
+		});
+		newPgPool.on('error', (err, client) => {
+			console.error('<3>... a PostgreSQL pool connection terminated unexpectedly!');
+			console.error('<3>... ', err, client);
+			process.exit(-1);
+		});
+		return newPgPool;
+	}
+	return null;
+};
+
+// Global variable of the PostgreSQL connection pool.
+const pgPool = getPgPool(hostname, database);
+
 /*
 const pgClients = [
 	{index: 0, pgClient: handleNewConnection(hostname, database)},
@@ -86,8 +107,8 @@ const pgClients = [
 const getVersion = async (pgClient) => {
 	if (pgClient) {
 		const query = {
-			name: "select-version",
-			text: "SELECT version()",
+			name: 'select-version',
+			text: 'SELECT version()'
 		};
 		return await pgClient.query(query);
 	}
@@ -97,8 +118,8 @@ const getVersion = async (pgClient) => {
 const getMode = async (pgClient) => {
 	if (pgClient) {
 		const query = {
-			name: "select-mode",
-			text: "SELECT pg_is_in_recovery()",
+			name: 'select-mode',
+			text: 'SELECT pg_is_in_recovery()'
 		};
 		return await pgClient.query(query);
 	}
@@ -108,9 +129,9 @@ const getMode = async (pgClient) => {
 const selectRecordById = async (pgClient, id) => {
 	if (pgClient) {
 		const query = {
-			name: "select-record-by-id",
-			text: "SELECT * FROM records WHERE id = $1",
-			values: [id],
+			name: 'select-record-by-id',
+			text: 'SELECT * FROM records WHERE id = $1',
+			values: [id]
 		};
 		return await pgClient.query(query);
 	}
@@ -120,59 +141,71 @@ const selectRecordById = async (pgClient, id) => {
 const insertRecord = async (pgClient, name, value) => {
 	if (pgClient) {
 		const query = {
-			name: "insert-record",
-			text: "INSERT INTO records(name, value) VALUES($1, $2) RETURNING id",
-			values: [name, value],
+			name: 'insert-record',
+			text: 'INSERT INTO records(name, value) VALUES($1, $2) RETURNING id',
+			values: [name, value]
 		};
 		return await pgClient.query(query);
 	}
 	return null;
 };
 
-app.get("/", async (req, res) => {
+app.get('/', async (req, res) => {
 	res.send(`... PostgreSQL database access from Node.js`);
-	console.log("... PostgreSQL connection setting:", {
+	console.log('... PostgreSQL connection setting:', {
 		timeout,
 		keepAliveTimeout,
 		headersTimeout,
 		requestTimeout,
 	});
+
+	const pgPoolClient = await pgPool.connect();
 	try {
-		console.log("... getMode");
+		console.log('... getMode in pool');
+		const selectResult = await getMode(pgPoolClient);
+		console.log('... used mode:', selectResult.rows);
+	} catch (err) {
+		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
+	} finally {
+		pgPoolClient.release();
+	};
+
+	try {
+		console.log('... getMode');
 		const selectResult = await getMode(pgClient);
 		if (selectResult) {
-			console.log("... used mode:", selectResult.rows);
+			console.log('... used mode:', selectResult.rows);
 		} else {
-			console.error("<3>... a PostgreSQL SDK client not initialized.");
+			console.error('<3>... a PostgreSQL SDK client not initialized.');
 		}
 	} catch (err) {
 		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
 	try {
-		console.log("... insertRecord");
+		console.log('... insertRecord');
 		const insertResult = await insertRecord(pgClient, `Patrik Cain (${Date.now()})`, 155);
 		if (insertResult && insertResult.rowCount > 0) {
-			console.log("... inserted rows:", insertResult.rows);
+			console.log('... inserted rows:', insertResult.rows);
 		} else {
 			if (insertResult) {
-				console.log("... no rows inserted");
+				console.log('... no rows inserted');
 			} else {
-				console.error("<3>... a PostgreSQL SDK client not initialized.");
+				console.error('<3>... a PostgreSQL SDK client not initialized.');
 			}
 		}
 	} catch (err) {
 		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
 	try {
-		console.log("... selectRecordById");
+		console.log('... selectRecordById');
 		const selectResult = await selectRecordById(pgClient, 1);
 		if (selectResult && selectResult.rowCount > 0) {
-			console.log("... selected rows:", selectResult.rows);
+			console.log('... selected rows:', selectResult.rows);
 		} else {
 			if (selectResult) {
-				console.log("... no rows found");
+				console.log('... no rows found');
 			} else {
-				console.error("<3>... a PostgreSQL SDK client not initialized.");
+				console.error('<3>... a PostgreSQL SDK client not initialized.');
 			}
 		}
 	} catch (err) {
@@ -182,15 +215,15 @@ app.get("/", async (req, res) => {
 	for (let index = 0; index < pgClients.length; index++) {
 		const pgClientElement = pgClients[index];
 		try {
-			console.log("... selectRecordById for index:", pgClientElement.index);
+			console.log('... selectRecordById for index:', pgClientElement.index);
 			const selectResult = await selectRecordById(pgClientElement.pgClient, pgClientElement.index);
 			if (selectResult && selectResult.rowCount > 0) {
-				console.log("... selected rows:", selectResult.rows);
+				console.log('... selected rows:', selectResult.rows);
 			} else {
 				if (selectResult) {
-					console.log("... no rows found");
+					console.log('... no rows found');
 				} else {
-					console.error("<3>... a PostgreSQL SDK client not initialized.");
+					console.error('<3>... a PostgreSQL SDK client not initialized.');
 				}
 			}
 		} catch (err) {
@@ -205,11 +238,12 @@ const server = app.listen(port, () => {
 });
 
 const {timeout, keepAliveTimeout, headersTimeout, requestTimeout} = server;
+server.keepAliveTimeout = 30;
 
 function handleShutdownGracefully() {
-	console.info("... closing the web server gracefully.");
+	console.info('... closing the web server gracefully.');
 	server.close(() => {
-		console.log("... the web server closed.");
+		console.log('... the web server closed.');
 		if (pgClient) {
 			pgClient.end();
 		}
@@ -217,6 +251,6 @@ function handleShutdownGracefully() {
 	});
 }
 
-process.on("SIGINT", handleShutdownGracefully);
-process.on("SIGTERM", handleShutdownGracefully);
-process.on("SIGHUP", handleShutdownGracefully);
+process.on('SIGINT', handleShutdownGracefully);
+process.on('SIGTERM', handleShutdownGracefully);
+process.on('SIGHUP', handleShutdownGracefully);
