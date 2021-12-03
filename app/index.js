@@ -11,8 +11,12 @@ const hostname = "postgresql";
 const database = "postgres";
 
 // Function returning an connectionString environment variable of the <hostname> service.
-const getConnectionString = (hostname) => {
+const getConnectionString = (hostname, readOnly) => {
 	const connectionString = "connectionString";
+	// A read only connection means access to standby replicas of the PostgreSQL cluster.
+	if (readOnly) {
+		connectionString.replace("5432", "5433");
+	}
 	const value = env[`${hostname}_${connectionString}`];
 	return value ? value : null;
 };
@@ -118,6 +122,7 @@ app.get("/", async (req, res) => {
 	} catch (err) {
 		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
+	/*
 	try {
 		console.log("... insertRecord");
 		const insertResult = await insertRecord(pgClient, `Patrik Cain (${Date.now()})`, 155);
@@ -133,6 +138,7 @@ app.get("/", async (req, res) => {
 	} catch (err) {
 		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
+	*/
 	try {
 		console.log("... selectRecordById");
 		const selectResult = await selectRecordById(pgClient, 1);
