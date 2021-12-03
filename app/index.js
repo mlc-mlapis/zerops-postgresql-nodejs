@@ -80,21 +80,23 @@ for (const [index, pgClient] of [
 	{index: 8, pgClient: handleNewConnection(hostname, database)},
 	{index: 9, pgClient: handleNewConnection(hostname, database)}
 ]) {
-	try {
-		console.log("... selectRecordById for index:", index);
-		const selectResult = await selectRecordById(pgClient, index);
-		if (selectResult && selectResult.rowCount > 0) {
-			console.log("... selected rows:", selectResult.rows);
-		} else {
-			if (selectResult) {
-				console.log("... no rows found");
+	(async () => {
+		try {
+			console.log("... selectRecordById for index:", index);
+			const selectResult = await selectRecordById(pgClient, index);
+			if (selectResult && selectResult.rowCount > 0) {
+				console.log("... selected rows:", selectResult.rows);
 			} else {
-				console.error("<3>... a PostgreSQL SDK client not initialized.");
+				if (selectResult) {
+					console.log("... no rows found");
+				} else {
+					console.error("<3>... a PostgreSQL SDK client not initialized.");
+				}
 			}
+		} catch (err) {
+			console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 		}
-	} catch (err) {
-		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
-	}
+	})();
 }
 
 const getVersion = async (pgClient) => {
