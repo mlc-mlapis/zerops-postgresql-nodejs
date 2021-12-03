@@ -68,7 +68,7 @@ const getPgClient = (hostname, database) => {
 // Global variable of the PostgreSQL client.
 let pgClient = handleNewConnection(hostname, database);
 
-for (const [index, pgClient] of [
+const pgClients = [
 	{index: 0, pgClient: handleNewConnection(hostname, database)},
 	{index: 1, pgClient: handleNewConnection(hostname, database)},
 	{index: 2, pgClient: handleNewConnection(hostname, database)},
@@ -79,11 +79,14 @@ for (const [index, pgClient] of [
 	{index: 7, pgClient: handleNewConnection(hostname, database)},
 	{index: 8, pgClient: handleNewConnection(hostname, database)},
 	{index: 9, pgClient: handleNewConnection(hostname, database)}
-]) {
+]
+
+for (let index = 0; index < pgClients.length; index++) {
+	const pgClientElement = pgClients[index];
 	(async () => {
 		try {
-			console.log("... selectRecordById for index:", index);
-			const selectResult = await selectRecordById(pgClient, index);
+			console.log("... selectRecordById for index:", pgClientElement.index);
+			const selectResult = await selectRecordById(pgClientElement.pgClient, pgClientElement.index);
 			if (selectResult && selectResult.rowCount > 0) {
 				console.log("... selected rows:", selectResult.rows);
 			} else {
