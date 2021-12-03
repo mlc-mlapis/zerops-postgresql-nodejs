@@ -150,6 +150,17 @@ const insertRecord = async (pgClient, name, value) => {
 	return null;
 };
 
+const handleNewPoolConnection = async () => {
+	try {
+		const newPgPoolClient = await pgPool.connect();
+		console.info('... a new pool connect to the PostgreSQL database successful.');
+		return newPgPoolClient;
+	} catch (err) {
+		console.error(`<3>... a new pool connect to the PostgreSQL database failed: ${err.code} - ${err.message}`);
+		return null;
+	}
+};
+
 app.get('/', async (req, res) => {
 	res.send(`... PostgreSQL database access from Node.js`);
 	console.log('... PostgreSQL connection setting:', {
@@ -159,16 +170,18 @@ app.get('/', async (req, res) => {
 		requestTimeout,
 	});
 
-	const pgPoolClient = await pgPool.connect();
-	try {
-		console.log('... getMode in pool');
-		const selectResult = await getMode(pgPoolClient);
-		console.log('... used mode:', selectResult.rows);
-	} catch (err) {
-		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
-	} finally {
-		pgPoolClient.release();
-	};
+	const pgPoolClient = await handleNewPoolConnection();
+	if (pgPoolClient) {
+		try {
+			console.log('... getMode in pool');
+			const selectResult = await getMode(pgPoolClient);
+			console.log('... used mode:', selectResult.rows);
+			pgPoolClient.release();
+		} catch (err) {
+			pgPoolClient.release();
+			console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
+		};
+	}
 
 	try {
 		console.log('... getMode');
