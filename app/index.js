@@ -175,7 +175,7 @@ app.get('/', async (req, res) => {
 		requestTimeout,
 	});
 
-	const pgPoolClient = await handleNewPoolConnection();
+	const pgPoolClient = await handleNewPoolConnection(pgPool);
 	if (pgPoolClient) {
 		try {
 			console.log('... getMode in pool');
