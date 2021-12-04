@@ -155,10 +155,16 @@ const insertRecord = async (pgClient, name, value) => {
 const handleNewPoolConnection = async (pgPool) => {
 	if (pgPool) {
 		try {
+			{
+				const {totalCount, idleCount, waitingCount} = pgPool;
+				console.info('... before a new pool connection:', {totalCount, idleCount, waitingCount});
+			}
 			const newPgPoolClient = await pgPool.connect();
 			console.info('... a new pool connect to the PostgreSQL database successful.');
-			const {totalCount, idleCount, waitingCount} = pgPool;
-			console.info('... pool connections:', {totalCount, idleCount, waitingCount});
+			{
+				const {totalCount, idleCount, waitingCount} = pgPool;
+				console.info('... after a new pool connection:', {totalCount, idleCount, waitingCount});
+			}
 			return newPgPoolClient;
 		} catch (err) {
 			console.error(`<3>... a new pool connect to the PostgreSQL database failed: ${err.code} - ${err.message}`);
