@@ -155,16 +155,10 @@ const insertRecord = async (pgClient, name, value) => {
 const handleNewPoolConnection = async (pgPool) => {
 	if (pgPool) {
 		try {
-			{
-				const {totalCount, idleCount, waitingCount} = pgPool;
-				console.info('... before a new pool connection:', {totalCount, idleCount, waitingCount});
-			}
+			checkPoolConnections(pgPool, 'before creating a new');
 			const newPgPoolClient = await pgPool.connect();
 			console.info('... a new pool connect to the PostgreSQL database successful.');
-			{
-				const {totalCount, idleCount, waitingCount} = pgPool;
-				console.info('... after a new pool connection:', {totalCount, idleCount, waitingCount});
-			}
+			checkPoolConnections(pgPool, 'after creating a new');
 			return newPgPoolClient;
 		} catch (err) {
 			console.error(`<3>... a new pool connect to the PostgreSQL database failed: ${err.code} - ${err.message}`);
@@ -173,6 +167,11 @@ const handleNewPoolConnection = async (pgPool) => {
 	}
 	return null;
 };
+
+const checkPoolConnections = (pgPool, message) => {
+	const {totalCount, idleCount, waitingCount} = pgPool;
+	console.info(`... pool connections (${message}):`, {totalCount, idleCount, waitingCount});
+}
 
 app.get('/', async (req, res) => {
 	res.send(`... PostgreSQL database access from Node.js`);
@@ -265,7 +264,9 @@ const server = app.listen(port, () => {
 
 const {timeout, keepAliveTimeout, headersTimeout, requestTimeout} = server;
 
-function handleShutdownGracefully() {
+setInterval(() => checkPoolConnections(pgPool, 'checking'), 1000); 
+
+const handleShutdownGracefully = () => {
 	console.info('... closing the web server gracefully.');
 	server.close(() => {
 		console.log('... the web server closed.');
