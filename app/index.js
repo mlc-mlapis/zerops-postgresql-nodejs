@@ -79,8 +79,16 @@ const getPgPool = (hostname, database) => {
 		});
 		newPgPool.on('error', (err, client) => {
 			console.error('<3>... a PostgreSQL pool connection terminated unexpectedly!');
-			console.error('<3>... ', err, client);
 			process.exit(-1);
+		});
+		newPgPool.on('connect', (err, client) => {
+			console.info('... a PostgreSQL pool connection: connect');
+		});
+		newPgPool.on('acquire', (err, client) => {
+			console.info('... a PostgreSQL pool connection: acquire');
+		});
+		newPgPool.on('remove', (err, client) => {
+			console.info('... a PostgreSQL pool connection: remove');
 		});
 		console.info('... a new pool to the PostgreSQL database created:', connectionString);
 		return newPgPool;
@@ -264,7 +272,7 @@ const server = app.listen(port, () => {
 
 const {timeout, keepAliveTimeout, headersTimeout, requestTimeout} = server;
 
-setInterval(() => checkPoolConnections(pgPool, 'checking'), 1000); 
+// setInterval(() => checkPoolConnections(pgPool, 'checking'), 1000);
 
 const handleShutdownGracefully = () => {
 	console.info('... closing the web server gracefully.');
