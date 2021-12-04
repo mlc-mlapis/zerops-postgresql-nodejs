@@ -82,6 +82,7 @@ const getPgPool = (hostname, database) => {
 			console.error('<3>... ', err, client);
 			process.exit(-1);
 		});
+		console.info('... a new pool to the PostgreSQL database created:', connectionString);
 		return newPgPool;
 	}
 	return null;
@@ -151,15 +152,18 @@ const insertRecord = async (pgClient, name, value) => {
 	return null;
 };
 
-const handleNewPoolConnection = async () => {
-	try {
-		const newPgPoolClient = await pgPool.connect();
-		console.info('... a new pool connect to the PostgreSQL database successful.');
-		return newPgPoolClient;
-	} catch (err) {
-		console.error(`<3>... a new pool connect to the PostgreSQL database failed: ${err.code} - ${err.message}`);
-		return null;
+const handleNewPoolConnection = async (pgPool) => {
+	if (pgPool) {
+		try {
+			const newPgPoolClient = await pgPool.connect();
+			console.info('... a new pool connect to the PostgreSQL database successful.');
+			return newPgPoolClient;
+		} catch (err) {
+			console.error(`<3>... a new pool connect to the PostgreSQL database failed: ${err.code} - ${err.message}`);
+			return null;
+		}
 	}
+	return null;
 };
 
 app.get('/', async (req, res) => {
