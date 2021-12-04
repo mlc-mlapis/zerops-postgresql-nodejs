@@ -275,11 +275,14 @@ const {timeout, keepAliveTimeout, headersTimeout, requestTimeout} = server;
 // setInterval(() => checkPoolConnections(pgPool, 'checking'), 1000);
 
 const handleShutdownGracefully = () => {
-	console.info('... closing the web server gracefully.');
+	console.info('... closing the server gracefully.');
 	server.close(() => {
-		console.log('... the web server closed.');
+		console.log('... the server closed.');
 		if (pgClient) {
 			pgClient.end();
+		}
+		if (pgPool) {
+			pgPool.end();
 		}
 		process.exit(0);
 	});
