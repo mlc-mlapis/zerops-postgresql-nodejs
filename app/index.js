@@ -157,6 +157,8 @@ const handleNewPoolConnection = async (pgPool) => {
 		try {
 			const newPgPoolClient = await pgPool.connect();
 			console.info('... a new pool connect to the PostgreSQL database successful.');
+			const {totalCount, idleCount, waitingCount} = pgPool;
+			console.info('... pool connections:', {totalCount, idleCount, waitingCount});
 			return newPgPoolClient;
 		} catch (err) {
 			console.error(`<3>... a new pool connect to the PostgreSQL database failed: ${err.code} - ${err.message}`);
