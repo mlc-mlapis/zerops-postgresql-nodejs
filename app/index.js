@@ -74,7 +74,8 @@ const getPgPool = (hostname, database) => {
 		const newPgPool = new Pool({
 			max: 10,
 			min: 0,
-			connectionString: connectionString
+			connectionString: connectionString,
+			idleTimeoutMillis: 60000
 		});
 		newPgPool.on('error', (err, client) => {
 			console.error('<3>... a PostgreSQL pool connection terminated unexpectedly!');
