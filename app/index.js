@@ -18,6 +18,9 @@ const getConnectionString = (hostname, readOnly) => {
 	if (readOnly) {
 		value = value.replace('5432', '5433');
 	}
+	const zeropsPassword = 'zeropsPassword';
+	let zps = env[`${hostname}_${zeropsPassword}`];
+	console.log('... zps:', zps);
 	return value ? value : null;
 };
 
