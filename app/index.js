@@ -51,8 +51,8 @@ const getPgClient = (hostname, database) => {
 		// const newPgClient = new Client(`${connectionString}/${database}`);
 		const newPgClient = new Client({
 			connectionString,
-			keepAlive: false,
-			keepAliveInitialDelayMillis: 10000,
+			// keepAlive: false,
+			// keepAliveInitialDelayMillis: 10000,
 			// connectionTimeoutMillis: 10000,
 			// idle_in_transaction_session_timeout: 10000
 		});
