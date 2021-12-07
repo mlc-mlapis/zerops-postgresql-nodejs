@@ -51,7 +51,8 @@ const getPgClient = (hostname, database) => {
 		// const newPgClient = new Client(`${connectionString}/${database}`);
 		const newPgClient = new Client({
 			connectionString,
-			idle_in_transaction_session_timeout: 10000
+			connectionTimeoutMillis: 10000,
+			// idle_in_transaction_session_timeout: 10000
 		});
 		newPgClient.once('error', () => {
 			console.error('<3>... a PostgreSQL connection terminated unexpectedly!');
