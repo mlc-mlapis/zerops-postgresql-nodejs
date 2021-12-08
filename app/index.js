@@ -75,7 +75,7 @@ const getPgClient = (hostname, database) => {
 };
 
 // Global variable of the PostgreSQL client.
-// let pgClient = handleNewConnection(hostname, database);
+let pgClient = handleNewConnection(hostname, database);
 
 const getPgPool = (hostname, database) => {
 	const connectionString = getConnectionString(hostname, true);
@@ -108,6 +108,7 @@ const getPgPool = (hostname, database) => {
 // Global variable of the PostgreSQL connection pool.
 // const pgPool = getPgPool(hostname, database);
 
+/*
 const pgClients = [
 	{index: 0, pgClient: handleNewConnection(hostname, database)},
 	{index: 1, pgClient: handleNewConnection(hostname, database)},
@@ -120,6 +121,7 @@ const pgClients = [
 	{index: 8, pgClient: handleNewConnection(hostname, database)},
 	{index: 9, pgClient: handleNewConnection(hostname, database)}
 ];
+*/
 
 const getVersion = async (pgClient) => {
 	if (pgClient) {
@@ -206,7 +208,6 @@ app.get('/', async (req, res) => {
 	}
 	*/
 
-	/*
 	try {
 		console.log('... getMode');
 		const selectResult = await getMode(pgClient);
@@ -248,8 +249,8 @@ app.get('/', async (req, res) => {
 	} catch (err) {
 		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
-	*/
 
+	/*
 	for (let index = 0; index < pgClients.length; index++) {
 		const pgClientElement = pgClients[index];
 		try {
@@ -268,6 +269,7 @@ app.get('/', async (req, res) => {
 			console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 		}
 	}
+	*/
 });
 
 const server = app.listen(port, () => {
