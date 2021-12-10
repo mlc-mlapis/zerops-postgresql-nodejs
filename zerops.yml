@@ -1,8 +1,10 @@
-use:
-  - nodejs@14
-run:
-  - npm i
-deploy:
-  - package.json
-  - node_modules
-  - ./app/index.js
+pgnodejs:
+  build:
+    base: [nodejs@14]
+    build:
+      - npm i
+    cache: [node_modules]
+  deploy:
+    - package.json
+    - node_modules
+    - ./app/index.js
