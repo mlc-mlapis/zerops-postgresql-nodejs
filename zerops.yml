@@ -11,3 +11,4 @@ pgnodejs:
   run:
     init:
       - echo "The application is being started ..."
+    start: npm start
