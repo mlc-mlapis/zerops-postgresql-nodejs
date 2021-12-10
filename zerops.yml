@@ -8,3 +8,6 @@ pgnodejs:
       - package.json
       - node_modules
       - ./app/index.js
+  run:
+    init:
+      - echo "The application is being started ..."
