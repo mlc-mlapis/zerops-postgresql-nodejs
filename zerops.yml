@@ -4,7 +4,7 @@ pgnodejs:
     build:
       - npm i
     cache: [node_modules]
-  deploy:
-    - package.json
-    - node_modules
-    - ./app/index.js
+    deploy:
+      - package.json
+      - node_modules
+      - ./app/index.js
