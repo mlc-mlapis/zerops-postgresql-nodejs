@@ -46,7 +46,7 @@ const handleNewConnection = (hostname, database) => {
 };
 
 const getPgClient = (hostname, database) => {
-	const connectionString = getConnectionString(hostname, true);
+	const connectionString = getConnectionString(hostname, false);
 	if (connectionString) {
 		// const newPgClient = new Client(`${connectionString}/${database}`);
 		const newPgClient = new Client({
