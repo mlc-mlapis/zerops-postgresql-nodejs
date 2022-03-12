@@ -9,7 +9,7 @@ pgnodejs:
       - node_modules
       - ./app/index.js
       - config.txt
-      - ./app/replace
+      - ./app/replace/
   run:
     init:
       - echo "The application is being started ..."
