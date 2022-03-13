@@ -16,5 +16,5 @@ pgnodejs:
     envReplace:
       target: [config.txt, ./app/replace]
       # delimiter: ["$$", "%%"]
-      delimiter: $$
+      delimiter: "$$"
     start: npm start
