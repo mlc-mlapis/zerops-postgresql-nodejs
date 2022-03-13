@@ -15,6 +15,5 @@ pgnodejs:
       - echo "The application is being started ..."
     envReplace:
       target: [config.txt, ./app/replace]
-      # delimiter: ["$$", "%%"]
-      delimiter: ["$$"]
+      delimiter: ["%%", "$$"]
     start: npm start
