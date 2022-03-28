@@ -2,6 +2,8 @@ pgnodejs:
   build:
     base: [nodejs@14]
     build:
+      - npm -v
+      - node -v
       - npm i
     cache: [node_modules]
     deploy:
