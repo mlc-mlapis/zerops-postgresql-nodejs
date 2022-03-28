@@ -220,6 +220,17 @@ app.get('/', async (req, res) => {
 		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
 	}
 	try {
+		console.log('... getVersion');
+		const selectResult = await getVersion(pgClient);
+		if (selectResult) {
+			console.log('... used version:', selectResult.rows);
+		} else {
+			console.error('<3>... a PostgreSQL SDK client not initialized.');
+		}
+	} catch (err) {
+		console.error(`<3>... a request to PostgreSQL database failed: ${err.code} - ${err.message}`);
+	}
+	try {
 		console.log('... insertRecord');
 		const insertResult = await insertRecord(pgClient, `Patrik Cain (${Date.now()})`, 155);
 		if (insertResult && insertResult.rowCount > 0) {
